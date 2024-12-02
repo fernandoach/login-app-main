@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <h1>panel de administrador</h1>
+  <table border>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Usuario</th>
+        <th>Rol</th>
+        <th>Opciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% for(let i=0; i<allUsers.length; i++) { %>
+        <tr>
+          <td><%= allUsers[i].nombre %></td>
+          <td><%= allUsers[i].usuario %></td>
+          <td><%= allUsers[i].role %></td>
+          <td>
+            <a href="#">Editar</a>
+            <a href="#">Eliminar</a>
+          </td>
+        </tr>  
+      <% } %>
+    </tbody>
+  </table>
+</body>
+</html>

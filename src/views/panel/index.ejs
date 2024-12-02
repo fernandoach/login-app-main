@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <h1>Panel de usuario</h1>
+  <form action="">
+    <div>
+      <label for="nombre">Nombre: </label>
+      <input type="text" name="nombre" id="nombre" value="<%= userData[0].nombre %>">
+    </div>
+    <div>
+      <label for="edad">Edad: </label>
+      <input type="text" name="edad" id="edad" value="<%= userData[0].edad %>">
+    </div>
+    <div>
+      <label for="usuario">Usuario: </label>
+      <input type="text" name="usuario" id="usuario" value="<%= userData[0].usuario %>">
+    </div>
+    <div>
+      <label for="role">role</label>
+      <input type="text" name="role" id="role" value="<%= userData[0].role %>">
+    </div>
+  </form>
+</body>
+</html>
