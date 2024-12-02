@@ -1,17 +1,20 @@
 import express from 'express'
-import { verifyToken } from './varifyTokenMiddleware.js'
 import { getAllUSers } from '../services/getAllUsers.js'
+import { varifyToken } from './varifyTokenMiddleware.js'
 
-const adminRoutes = express.Router()
+const router = express.Router()
 
-adminRoutes.get('/panel', verifyToken, async (req, res) => {
-  if (req.user.role === 'admin') {
+router.get('/panel', varifyToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.redirect('/panel')
+    }
     const allUsers = await getAllUSers()
-    console.log(allUsers)
-    return res.render('admin/panel.ejs', { allUsers })
-  } else {
-    return res.json('acceso no autorizado')
+    return res.render('admin/panel', { allUsers })
+  } catch (error) {
+    console.error(error)
+    return res.redirect('/auth/login')
   }
 })
 
-export { adminRoutes }
+export { router as adminRoutes }

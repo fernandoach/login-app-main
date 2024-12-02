@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 
-const verifyToken = (req, res, next) => {
+const varifyToken = (req, res, next) => {
   const token = req.cookies.jwt
 
   if (!token) {
@@ -15,4 +15,4 @@ const verifyToken = (req, res, next) => {
   }
 }
 
-export { verifyToken }
+export { varifyToken }

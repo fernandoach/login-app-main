@@ -1,57 +1,66 @@
 import express from 'express'
-import { getAllUSers } from '../services/getAllUsers.js'
 import { createUser } from '../services/createUser.js'
-import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
 import { getUserByUsername } from '../services/getUserByUsername.js'
+import jwt from 'jsonwebtoken'
+import bcrypt from 'bcrypt'
 
-const authRoutes = express.Router()
+const router = express.Router()
 
-authRoutes.get('/login', (req, res) => {
-  return res.render('auth/login.ejs')
+router.get('/login', (req, res) => {
+  res.render('auth/login')
 })
 
-authRoutes.post('/login', async (req, res) => {
+router.get('/register', (req, res) => {
+  res.render('auth/register')
+})
+
+router.post('/register', async (req, res) => {
+  try {
+    const { nombre, edad, usuario, passwd } = req.body
+    const hashedPassword = await bcrypt.hash(passwd, 10)
+    await createUser(nombre, edad, usuario, hashedPassword, 'user')
+    res.redirect('/auth/login')
+  } catch (error) {
+    console.error(error)
+    res.redirect('/auth/register')
+  }
+})
+
+router.post('/login', async (req, res) => {
   try {
     const { usuario, passwd } = req.body
     const user = await getUserByUsername(usuario)
-    const compare = await bcrypt.compare(passwd, user[0].passwd)
-    if (compare === false) {
+
+    if (user.length === 0) {
       return res.redirect('/auth/login')
     }
-    const secret = process.env.JWT_SECRET
-    const token = jwt.sign({ usuario: user[0].usuario, role: user[0].role }, secret, { expiresIn: '1h' })
-    res.cookie('jwt', token, { httpOnly: true })
+
+    const validPassword = await bcrypt.compare(passwd, user[0].passwd)
+    if (!validPassword) {
+      return res.redirect('/auth/login')
+    }
+
+    const token = jwt.sign(
+      { id: user[0].id, role: user[0].role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    )
+
+    res.cookie('token', token, { httpOnly: true })
+
     if (user[0].role === 'admin') {
       return res.redirect('/admin/panel')
-    } else {
-      return res.redirect('/panel/')
     }
+    return res.redirect('/panel')
   } catch (error) {
-    console.log(error)
-    return res.json(error)
+    console.error(error)
+    res.redirect('/auth/login')
   }
 })
 
-authRoutes.get('/register', (req, res) => {
-  return res.render('auth/register.ejs')
+router.get('/logout', (req, res) => {
+  res.clearCookie('token')
+  res.redirect('/auth/login')
 })
 
-authRoutes.post('/register', async (req, res) => {
-  try {
-    const { nombre, edad, usuario, passwd } = req.body
-    console.log(nombre, edad, usuario, passwd)
-    const users = await getAllUSers()
-    const findUser = users.findIndex(o => o.usuario === usuario)
-    if (findUser === -1) {
-      const hashedPassword = await bcrypt.hash(passwd, 12)
-      await createUser(nombre, edad, usuario, hashedPassword, 'user')
-      return res.redirect('/auth/login')
-    }
-    return res.redirect('/auth/register')
-  } catch (err) {
-    return res.json(err)
-  }
-})
-
-export { authRoutes }
+export { router as authRoutes }
